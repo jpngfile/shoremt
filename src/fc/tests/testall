@@ -46,7 +46,7 @@ fi
 
 if [[ -n $3 ]]; then
     of=/tmp/$$
-    if $1 1> $of 2> $of.err ; then
+    if "./"$1 1> $of 2> $of.err ; then
         if diff $of $3 >> $2; then
             print "ok"
         else
@@ -61,7 +61,7 @@ if [[ -n $3 ]]; then
     fi
     cat $of >> $2
     rm $of
-elif $1 >> $2 2>&1; then
+elif "./"$1 >> $2 2>&1; then
     print "ok"
 else
     print "failed to execute $1 ( $? )"
