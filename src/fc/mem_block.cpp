@@ -140,7 +140,9 @@ void block_bits::release(size_t index, size_t chip_count) {
     bitmap was_free = ov;
 #endif
     (void) was_free; // keep gcc happy
-    assert(! (was_free & to_free));
+    cout << "block bit release" << endl;
+    cout << was_free << " " << to_free << endl;
+    assert(!(was_free & to_free));
 }
 
 block_bits::bitmap block_bits::create_mask(size_t bits_set) {

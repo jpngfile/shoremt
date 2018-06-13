@@ -60,8 +60,10 @@ w_rc_t testing()
 {
 
     w_rc_t rc = RC(fcOS);
+    cout << "Apply macros to RC" << endl;
     RC_AUGMENT(rc);
     RC_PUSH(rc, fcINTERNAL);
+    cout << "After first augment" << endl;
     RC_AUGMENT(rc);
     RC_PUSH(rc, fcFULL);
     RC_AUGMENT(rc);
@@ -70,8 +72,12 @@ w_rc_t testing()
     RC_PUSH(rc, fcNOTFOUND);
     RC_AUGMENT(rc);
 
+    cout << "Last augment" << endl;
+
     // This constitutes a check on THIS rc
     if (rc.is_error())  {; } 
+
+    cout << "Returns rc" << endl;
 
     return rc;
 }
@@ -90,71 +96,77 @@ int main()
     cout << "Expect two 'error not checked' messages" << endl;
     {
         w_rc_t rc;
-		rc = testing();
+        cout << "Before testing" << endl;
+	    rc = testing();
+        cout << "Immediately after return" << endl;
     }
+
+    cout << "Is testing ok??" << endl;
 
     {
         testing_ok();
     }
 
+    cout << "After testing check" << endl;
+
     if(testing_ok().is_error()) {
         cout << "FAILURE: This should never happen!" << endl;
     }
 
-    cout << "Expect 3 forms of the string of errors" << endl;
-	{
-			w_rc_t rc = testing();
-		{
-			//////////////////////////////////////////////////// 
-			// this gets you to the integer values, one at a time
-			//////////////////////////////////////////////////// 
-			cout << "*************************************" << endl;
-			w_rc_i iter(rc);
-			cout << endl << "1 : List of error numbers:" << endl;
-			for(w_base_t::int4_t e = iter.next_errnum();
-				e!=0; e = iter.next_errnum()) {
-			cout << "error = " << e << endl;
-			}
-			cout << "End list of error numbers:" << endl;
-		}
-		{
-			//////////////////////////////////////////////////// 
-			// this gets you to the w_error_t structures, one
-			// at a time.  If you print each one, though, you
-			// get it PLUS everything attached to it
-			//////////////////////////////////////////////////// 
-			w_rc_i iter(rc);
-			cout << "*************************************" << endl;
-			cout << endl << "2 : List of w_error_t:" << endl;
-			for(const w_error_t *e = iter.next();
-				e; 
-				e = iter.next()) {
-			cout << "error = " << *e << endl;
-			}
-			cout << "End list of w_error_t:" << endl;
-		}
-		{
-			cout << "*************************************" << endl;
-			cout << endl << "3 : print the rc:" << endl;
-			cout << "error = " << rc << endl;
-			cout << "End print the rc:" << endl;
-		}
-	}
+    //cout << "Expect 3 forms of the string of errors" << endl;
+	//{
+	//		w_rc_t rc = testing();
+	//	{
+	//		//////////////////////////////////////////////////// 
+	//		// this gets you to the integer values, one at a time
+	//		//////////////////////////////////////////////////// 
+	//		cout << "*************************************" << endl;
+	//		w_rc_i iter(rc);
+	//		cout << endl << "1 : List of error numbers:" << endl;
+	//		for(w_base_t::int4_t e = iter.next_errnum();
+	//			e!=0; e = iter.next_errnum()) {
+	//		cout << "error = " << e << endl;
+	//		}
+	//		cout << "End list of error numbers:" << endl;
+	//	}
+	//	{
+	//		//////////////////////////////////////////////////// 
+	//		// this gets you to the w_error_t structures, one
+	//		// at a time.  If you print each one, though, you
+	//		// get it PLUS everything attached to it
+	//		//////////////////////////////////////////////////// 
+	//		w_rc_i iter(rc);
+	//		cout << "*************************************" << endl;
+	//		cout << endl << "2 : List of w_error_t:" << endl;
+	//		for(const w_error_t *e = iter.next();
+	//			e; 
+	//			e = iter.next()) {
+	//		cout << "error = " << *e << endl;
+	//		}
+	//		cout << "End list of w_error_t:" << endl;
+	//	}
+	//	{
+	//		cout << "*************************************" << endl;
+	//		cout << endl << "3 : print the rc:" << endl;
+	//		cout << "error = " << rc << endl;
+	//		cout << "End print the rc:" << endl;
+	//	}
+	//}
 
-	{
-		w_rc_t rc = testing1();
-		w_assert1(rc.is_error());
-		cout << " ORIG:" << rc << endl;
-		w_rc_i it(rc);
+	//{
+	//	w_rc_t rc = testing1();
+	//	w_assert1(rc.is_error());
+	//	cout << " ORIG:" << rc << endl;
+	//	w_rc_i it(rc);
 
-        w_rc_t rc2(rc);
-		cout << " COPY CONSTRUCTOR: " << rc2 << endl;
+    //    w_rc_t rc2(rc);
+	//	cout << " COPY CONSTRUCTOR: " << rc2 << endl;
 
-        rc2 = rc;
-		w_assert1(rc2.is_error());
-		cout << " COPY OPERATOR: " << rc2 << endl;
+    //    rc2 = rc;
+	//	w_assert1(rc2.is_error());
+	//	cout << " COPY OPERATOR: " << rc2 << endl;
 
-	}
+	//}
     return 0;
 }
 

@@ -160,11 +160,13 @@ public:
 
     /// Copy constructor: does a deep copy, does not delegate.
     w_rc_t(const w_rc_t &other) : _err(other.clone()) { 
+        cout << "rc Copy constructor is called" << endl;
         set_unchecked(); 
     }
 
     /// Copy operator: does a deep copy; does not delegate
-    w_rc_t &operator=(w_rc_t const &other) { 
+    w_rc_t &operator=(w_rc_t const &other) {
+        cout << "rc Copy assignment is called" << endl;
         return (this == &other)?  *this : _assign(other.clone()); }
 
     /// Will croak if is_error() has not been called (configure --enable-checkrc)
@@ -287,6 +289,7 @@ private:
     // delete my current error (if any) and take ownership of a new one
     // other had better not belong to any other rc.
     w_rc_t &_assign(w_error_t* other) {
+        cout << "rc Assignment is called" << endl;
         w_assert2(other);
         verify();
         w_error_t* err = ptr();
