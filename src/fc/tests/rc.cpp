@@ -61,16 +61,16 @@ w_rc_t testing()
 
     w_rc_t rc = RC(fcOS);
     cout << "Apply macros to RC" << endl;
-    RC_AUGMENT(rc);
-    RC_PUSH(rc, fcINTERNAL);
-    cout << "After first augment" << endl;
-    RC_AUGMENT(rc);
-    RC_PUSH(rc, fcFULL);
-    RC_AUGMENT(rc);
-    RC_PUSH(rc, fcEMPTY);
-    RC_AUGMENT(rc);
-    RC_PUSH(rc, fcNOTFOUND);
-    RC_AUGMENT(rc);
+    //RC_AUGMENT(rc);
+    //RC_PUSH(rc, fcINTERNAL);
+    //cout << "After first augment" << endl;
+    //RC_AUGMENT(rc);
+    //RC_PUSH(rc, fcFULL);
+    //RC_AUGMENT(rc);
+    //RC_PUSH(rc, fcEMPTY);
+    //RC_AUGMENT(rc);
+    //RC_PUSH(rc, fcNOTFOUND);
+    //RC_AUGMENT(rc);
 
     cout << "Last augment" << endl;
 
