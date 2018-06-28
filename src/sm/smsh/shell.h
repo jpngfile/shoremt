@@ -46,7 +46,7 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 #include <cstring>
 #include "smsh_error.h"
 #undef EXTERN
-#include <tcl.h>
+#include <tcl8.5/tcl.h>
 #include "tcl_workaround.h"
 #include "tcl_thread.h"
 
