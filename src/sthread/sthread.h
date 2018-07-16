@@ -97,6 +97,7 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 
 // this #include reflects the fact that sthreads is now just a pthreads wrapper
 #include <pthread.h>
+#include "fibre.h"
 
 class sthread_t;
 class smthread_t;
@@ -1134,6 +1135,7 @@ sthread_t::status() const
 }
 
 #include <w_strstream.h>
+
 // Need string.h to get strerror_r 
 #include <string.h>
 

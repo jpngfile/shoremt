@@ -55,6 +55,7 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 /*  -- do not edit anything above this line --   </std-header>*/
 
 #define OPTION_C
+//#define NULL nullptr
 #ifdef __GNUC__
 #   pragma implementation
 #endif
@@ -834,7 +835,7 @@ w_rc_t option_stream_scan_t::scan(
     DBG(<<"scanning options stream " << _label);
 
     w_rc_t rc;
-    while ( !rc.is_error() && (_input.getline(_line, _maxLineLen) != NULL) ) {
+    while ( !rc.is_error() && (_input.getline(_line, _maxLineLen)) ) {
             _lineNum++;
         DBG(<<"scan line " << _lineNum);
         

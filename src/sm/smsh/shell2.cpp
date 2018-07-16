@@ -385,7 +385,7 @@ void special() { }
  * does a conversion to a "legitimate" character,
  * defeating the whole point of using this string.
  */
-int _laststring[] = { 0xffffffff, 0x0 };
+int _laststring[] = { static_cast<int>(0xffffffff), 0x0 };
 char *LASTSTRING = (char *)&_laststring;
 
 static int

@@ -86,15 +86,15 @@ function execute  {
 outf=/tmp/all$$.out
 rm -f /tmp/all*.out
 execute thread1 $outf
-execute thread2 $outf
-execute "thread2 -h" $outf 
+# execute thread2 $outf
+# execute "thread2 -h" $outf 
 
 # order changes: 
 execute run_thread3 $outf 
 
 execute thread4 $outf
 execute pthread_test $outf
-execute mmap $outf
+#execute mmap $outf
 
 print
 print "result in $outf"

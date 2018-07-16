@@ -140,8 +140,8 @@ void block_bits::release(size_t index, size_t chip_count) {
     bitmap was_free = ov;
 #endif
     (void) was_free; // keep gcc happy
-    cout << "block bit release" << endl;
-    cout << was_free << " " << to_free << endl;
+    //cout << "block bit release" << endl;
+    //cout << was_free << " " << to_free << endl;
     assert(!(was_free & to_free));
 }
 
