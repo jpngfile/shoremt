@@ -1607,5 +1607,5 @@ sthread_init_t::~sthread_init_t()
     }
 }
 
-pthread_t sthread_t::myself() { return _core->pthread; }
+fibre_t sthread_t::myself() { return _core->fibre; }
 

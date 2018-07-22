@@ -838,7 +838,9 @@ public:
     // NOTE: this returns a POINTER
     static sthread_t*    me() { return me_lval(); }
                          // for debugging:
-    pthread_t            myself(); // pthread_t associated with this
+                         ///
+    // Replace with fibre
+    fibre_t            myself(); // pthread_t associated with this
     static w_rand        *tls_rng() { return &me()->_rng; }
     w_rand               *rng() { return &_rng; }
 

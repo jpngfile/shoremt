@@ -48,6 +48,7 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
  */
 
 #include <pthread.h>
+#include "fibre.h"
 #ifdef HAVE_SEMAPHORE_H
 #include <semaphore.h>
 #endif
@@ -59,6 +60,7 @@ typedef struct sthread_core_t {
     void        *start_arg;        /* argument for start_proc */
     int         stack_size;        /* stack size */
     void        *sthread;        /* sthread which uses this core */
+    fibre_t       fibre;          /* Fibre to replace pthread */
     pthread_t   pthread;
     pthread_t   creator;         /* thread that created this pthread, for
                                     debugging only */
