@@ -5,6 +5,8 @@ config.status
 *.o
 *.Po
 *.a
+*.log
+*.trs
 src/atomic_ops/libatomic_ops.a
 src/common/libcommon.a
 src/common/opt_einfo_bakw_gen.h
