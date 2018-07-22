@@ -1,0 +1,6 @@
+#!/bin/bash
+export CPPFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -fpic -DFIBRE"
+export LDFLAGS="-L/home/jason/Github/shoremt/libfibre" 
+export LIBS="-lfibre -lpthread -lrt -Wl,-rpath=."
+export CPATH="/home/jason/Github/KOS/src/"
+# Also added libfibre.so to every folder that uses it

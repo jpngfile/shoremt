@@ -1,0 +1,5 @@
+Failing Test                Frequency
+
+fc/tests/rc.cpp             always
+sthread/tests/thread2       sometimes
+sthread/tests/mmap          sometimes
