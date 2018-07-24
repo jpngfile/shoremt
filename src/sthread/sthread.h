@@ -99,6 +99,9 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 #include <pthread.h>
 #include "fibre.h"
 
+#include "runtime/BlockingSync.h"
+#include "libfibre/lfbasics.h"
+
 class sthread_t;
 class smthread_t;
 
@@ -615,9 +618,10 @@ private:
     occ_rlock _read_lock;
     occ_wlock _write_lock;
 
-    pthread_mutex_t _read_write_mutex; // paired w/ _read_cond, _write_cond
-    pthread_cond_t _read_cond; // paired w/ _read_write_mutex
-    pthread_cond_t _write_cond; // paired w/ _read_write_mutex
+    // Replaced with fibres
+    fibre_mutex_t _read_write_mutex; // paired w/ _read_cond, _write_cond
+    fibre_cond_t _read_cond; // paired w/ _read_write_mutex
+    fibre_cond_t _write_cond; // paired w/ _read_write_mutex
 };
 
 #ifdef LOCKHACK
@@ -833,6 +837,7 @@ public:
     /*
      *  Misc
      */
+    // Replace with fibre
     // NOTE: this returns a REFERENCE
     static sthread_t*    &me_lval() ;
     // NOTE: this returns a POINTER
@@ -1110,6 +1115,10 @@ SPECIALIZE_CS(tatas_lock, int _dummy, (_dummy=0),
 // SPECIALIZE_CS(queue_based_lock_t, queue_based_lock_t::ext_qnode _me, (_me._held=0), 
 SPECIALIZE_CS(w_pthread_lock_t, w_pthread_lock_t::ext_qnode _me, (_me._held=0), 
     _mutex->acquire(&_me), _mutex->release(&_me));
+
+// fibre lock
+SPECIALIZE_CS(fibre_mutex_t, int _dummy, (_dummy=0),
+        fibre_mutex_lock(_mutex), fibre_mutex_unlock(_mutex));
 
 #ifndef USE_PTHREAD_MUTEX
 SPECIALIZE_CS(mcs_lock, mcs_lock::ext_qnode _me, (_me._held=0), 

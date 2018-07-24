@@ -104,6 +104,11 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 #include "sthread_stats.h"
 #include "stcore_pthread.h"
 
+#include "testoptions.h"
+#include "runtime/BlockingSync.h"
+#include "libfibre/lfbasics.h"
+#include "fibre.h"
+
 #ifdef PURIFY
 #include <purify.h>
 #endif
@@ -1315,16 +1320,16 @@ occ_rwlock::occ_rwlock()
     : _active_count(0)
 {
     _write_lock._lock = _read_lock._lock = this;
-    DO_PTHREAD(pthread_mutex_init(&_read_write_mutex, NULL));
-    DO_PTHREAD(pthread_cond_init(&_read_cond, NULL));
-    DO_PTHREAD(pthread_cond_init(&_write_cond, NULL));
+    DO_PTHREAD(fibre_mutex_init(&_read_write_mutex, NULL));
+    DO_PTHREAD(fibre_cond_init(&_read_cond, NULL));
+    DO_PTHREAD(fibre_cond_init(&_write_cond, NULL));
 }
 
 occ_rwlock::~occ_rwlock()
 {
-    DO_PTHREAD(pthread_mutex_destroy(&_read_write_mutex));
-    DO_PTHREAD(pthread_cond_destroy(&_read_cond));
-    DO_PTHREAD(pthread_cond_destroy(&_write_cond));
+    DO_PTHREAD(fibre_mutex_destroy(&_read_write_mutex));
+    DO_PTHREAD(fibre_cond_destroy(&_read_cond));
+    DO_PTHREAD(fibre_cond_destroy(&_write_cond));
     _write_lock._lock = _read_lock._lock = NULL;
 }
 
@@ -1336,7 +1341,7 @@ void occ_rwlock::release_read()
     if(count == WRITER) {
         // wake it up
         CRITICAL_SECTION(cs, _read_write_mutex);
-        DO_PTHREAD(pthread_cond_signal(&_write_cond));
+        DO_PTHREAD(fibre_cond_signal(&_write_cond));
     }
 }
 
@@ -1345,7 +1350,7 @@ void occ_rwlock::release_write()
     w_assert9(_active_count & WRITER);
     CRITICAL_SECTION(cs, _read_write_mutex);
     atomic_add_32(&_active_count, -WRITER);
-    DO_PTHREAD(pthread_cond_broadcast(&_read_cond));
+    DO_PTHREAD(fibre_cond_broadcast(&_read_cond));
 }
 
 /**\cond skip */

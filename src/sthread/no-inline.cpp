@@ -64,10 +64,10 @@ void occ_rwlock::acquire_read()
             
             // nasty race: we could have fooled a writer into sleeping...
             if(count == WRITER)
-                DO_PTHREAD(pthread_cond_signal(&_write_cond));
+                DO_PTHREAD(fibre_cond_signal(&_write_cond));
             
             while(*&_active_count & WRITER) {
-                DO_PTHREAD(pthread_cond_wait(&_read_cond, &_read_write_mutex));
+                DO_PTHREAD(fibre_cond_wait(&_read_cond, &_read_write_mutex));
             }
         }
         count = atomic_add_32_nv(&_active_count, READER);
@@ -80,7 +80,7 @@ void occ_rwlock::acquire_write()
     // only one writer allowed in at a time...
     CRITICAL_SECTION(cs, _read_write_mutex);    
     while(*&_active_count & WRITER) {
-        DO_PTHREAD(pthread_cond_wait(&_read_cond, &_read_write_mutex));
+        DO_PTHREAD(fibre_cond_wait(&_read_cond, &_read_write_mutex));
     }
     
     // any lurking writers are waiting on the cond var
@@ -89,7 +89,7 @@ void occ_rwlock::acquire_write()
 
     // drain readers
     while(count != WRITER) {
-        DO_PTHREAD(pthread_cond_wait(&_write_cond, &_read_write_mutex));
+        DO_PTHREAD(fibre_cond_wait(&_write_cond, &_read_write_mutex));
         count = *&_active_count;
     }
 }
