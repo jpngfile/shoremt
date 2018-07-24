@@ -246,7 +246,9 @@ w_base_t::uint4_t       sthread_t::_next_id = MAIN_THREAD_ID;
 sthread_list_t*         sthread_t::_class_list = 0;
 
 #ifdef LOCKHACK
-pthread_mutex_t sthread_t::_class_list_lock = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t sthread_t::_class_list_lock = PTHREAD_MUTEX_INITIALIZER;
+fibre_mutex_t sthread_t::_class_list_lock = {};
+// Moved to initialize_sthreads_package()
 #else
 queue_based_lock_t      sthread_t::_class_list_lock;
 #endif
@@ -495,9 +497,9 @@ w_rc_t    sthread_t::fork()
         /* Add us to the list of threads, unless we are the main thread */
         if(this != _main_thread) 
         {
-            pthread_mutex_lock(&_class_list_lock);
+            fibre_mutex_lock(&_class_list_lock);
             _class_list->append(this);
-            pthread_mutex_unlock(&_class_list_lock);
+            fibre_mutex_unlock(&_class_list_lock);
         }
 
         
@@ -841,9 +843,9 @@ void sthread_t::_start()
         _link.detach();
     }
     {
-         pthread_mutex_lock(&_class_list_lock);
+         fibre_mutex_lock(&_class_list_lock);
         _class_link.detach();
-        pthread_mutex_unlock(&_class_list_lock);
+        fibre_mutex_unlock(&_class_list_lock);
     }
 
     w_assert3(this == me());
@@ -1118,7 +1120,7 @@ void sthread_t::dumpall(ostream &o)
 // We've put this into a huge critical section
 // to make it thread-safe, even though it's probably not necessary
 // when used in the debugger, which is the only place this is used...
-	pthread_mutex_lock(&_class_list_lock);
+	fibre_mutex_lock(&_class_list_lock);
     sthread_list_i i(*_class_list);
 
     while (i.next())  {
@@ -1129,7 +1131,7 @@ void sthread_t::dumpall(ostream &o)
 
         i.curr()->_dump(o);
     }
-    pthread_mutex_unlock(&_class_list_lock);
+    fibre_mutex_unlock(&_class_list_lock);
 }
 
 
@@ -1289,14 +1291,14 @@ void sthread_t::for_each_thread(ThreadFunc& f)
 // We've put this into a huge critical section
 // to make it thread-safe, even though it's probably not necessary
 // when used in the debugger, which is the only place this is used...
-    pthread_mutex_lock(&_class_list_lock);
+    fibre_mutex_lock(&_class_list_lock);
 
     sthread_list_i i(*_class_list);
 
     while (i.next())  {
         f(*i.curr());
     }
-    pthread_mutex_unlock(&_class_list_lock);
+    fibre_mutex_unlock(&_class_list_lock);
 }
 
 void print_timeout(ostream& o, const sthread_base_t::timeout_in_ms timeout)
@@ -1537,7 +1539,7 @@ static    void    get_large_file_size(w_base_t::int8_t &max_os_file_size)
 // we'll have fork also do this init.
 // Cleanup is done in global destructors.
 void  sthread_t::initialize_sthreads_package()
-{   sthread_init_t::do_init(); }
+{  sthread_init_t::do_init(); }
 
 NORET            
 sthread_init_t::sthread_init_t() { }

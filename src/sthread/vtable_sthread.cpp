@@ -65,7 +65,7 @@ int
 sthread_t::collect(vtable_t &v, bool names_too)
 {
 
-    pthread_mutex_lock(&_class_list_lock);
+    fibre_mutex_lock(&_class_list_lock);
 
     // Traverse once to count the number of entries. Grot.
     int nt=0;
@@ -98,7 +98,7 @@ sthread_t::collect(vtable_t &v, bool names_too)
 // cerr << "collect " << __LINE__ << " " << __FILE__; v.operator<<(cerr); cerr << endl;
         }
     }
-    pthread_mutex_unlock(&_class_list_lock);
+    fibre_mutex_unlock(&_class_list_lock);
 
     return 0; // no error
 }
