@@ -72,31 +72,41 @@ class pong_thread_t;
 
 struct ping_pong_t {
 	int		    whoseShot;
-	pthread_mutex_t	theBall;
-	pthread_cond_t paddle[2];
+    
+	//pthread_mutex_t	theBall;
+	//pthread_cond_t paddle[2];
+    fibre_mutex_t theBall;
+    fibre_cond_t paddle[2];
 
 	pong_thread_t	*ping;
 	pong_thread_t	*pong;
 	
 	ping_pong_t() : whoseShot(0), ping(0), pong(0) { 
-		DO_PTHREAD(pthread_mutex_init(&theBall, NULL));
-		DO_PTHREAD(pthread_cond_init(&paddle[0], NULL));
-		DO_PTHREAD(pthread_cond_init(&paddle[1], NULL));
+		//DO_PTHREAD(pthread_mutex_init(&theBall, NULL));
+		//DO_PTHREAD(pthread_cond_init(&paddle[0], NULL));
+		//DO_PTHREAD(pthread_cond_init(&paddle[1], NULL));
+		DO_PTHREAD(fibre_mutex_init(&theBall, NULL));
+		DO_PTHREAD(fibre_cond_init(&paddle[0], NULL));
+		DO_PTHREAD(fibre_cond_init(&paddle[1], NULL));
 	}
 };
 
 
 class wait_for_t {
-	pthread_mutex_t	_lock;
-	pthread_cond_t	_done;
+	//pthread_mutex_t	_lock;
+	//pthread_cond_t	_done;
+	fibre_mutex_t	_lock;
+	fibre_cond_t	_done;
 
 	int	expected;
 	int	have;
 
 public:
 	wait_for_t(int expecting) : expected(expecting), have(0) { 
-		DO_PTHREAD(pthread_mutex_init(&_lock, NULL));
-		DO_PTHREAD(pthread_cond_init(&_done, NULL));
+		//DO_PTHREAD(pthread_mutex_init(&_lock, NULL));
+		//DO_PTHREAD(pthread_cond_init(&_done, NULL));
+		DO_PTHREAD(fibre_mutex_init(&_lock, NULL));
+		DO_PTHREAD(fibre_cond_init(&_done, NULL));
 	}
 	void	wait();
 	void	done();
@@ -433,7 +443,7 @@ worker_thread_t::worker_thread_t(int _id)
 
 void worker_thread_t::run()
 {
-    OUT << "Hello, world from " << work_id << endl;
+    OUT << "Hello!, world from " << work_id << endl;
     if(isStackOK(__FILE__, __LINE__)) {
 		_out << " stack is ok " << work_id << endl;
     }
@@ -468,10 +478,12 @@ void pong_thread_t::run()
 		CRITICAL_SECTION(cs, game.theBall);
 		for(i=0; i<PongTimes; ++i){
 			while(game.whoseShot != self){
-				DO_PTHREAD(pthread_cond_wait(&game.paddle[self], &game.theBall));
+				//DO_PTHREAD(pthread_cond_wait(&game.paddle[self], &game.theBall));
+				DO_PTHREAD(fibre_cond_wait(&game.paddle[self], &game.theBall));
 			}
 			game.whoseShot = 1-self;
-			DO_PTHREAD(pthread_cond_signal(&game.paddle[1-self]));
+			//DO_PTHREAD(pthread_cond_signal(&game.paddle[1-self]));
+			DO_PTHREAD(fibre_cond_signal(&game.paddle[1-self]));
 
 		}
 	}
@@ -581,7 +593,8 @@ void	wait_for_t::wait()
 {
 	CRITICAL_SECTION(cs, _lock);
 	while (have < expected) {
-		DO_PTHREAD(pthread_cond_wait(&_done, &_lock));
+		//DO_PTHREAD(pthread_cond_wait(&_done, &_lock));
+		DO_PTHREAD(fibre_cond_wait(&_done, &_lock));
 	}
 }
 
@@ -590,7 +603,8 @@ void	wait_for_t::done()
 	CRITICAL_SECTION(cs, _lock);
 	have++;
 	if (have >= expected) {
-		DO_PTHREAD(pthread_cond_signal(&_done));
+		//DO_PTHREAD(pthread_cond_signal(&_done));
+		DO_PTHREAD(fibre_cond_signal(&_done));
 	}
 }
 
