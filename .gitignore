@@ -76,6 +76,7 @@ autom4te.cache/traces.0
 autom4te.cache/traces.1
 autom4te.cache/traces.2
 config/Makefile.in
+config/shore-config.h
 configure
 src/common/tests/bitmap
 src/common/tests/errcodes
