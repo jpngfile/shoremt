@@ -44,7 +44,7 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 #include <w_strstream.h>
 
 
-#define DefaultNumThreads 8
+#define DefaultNumThreads 1
 
 #define DefaultPongTimes  10000
 #define LocalMsgPongTimes 1000000
@@ -327,6 +327,9 @@ int	main(int argc, char* argv[])
     int next_arg = parse_args(argc, argv);
     if (next_arg < 0)
 	    return 1;
+    
+    OUT << "System Processor" << endl; FLUSHOUT;
+    SystemProcessor* sp2 = new SystemProcessor;
 
     if (NumThreads) {
 	    ack = new int[NumThreads];
@@ -373,7 +376,8 @@ int	main(int argc, char* argv[])
 	    delete [] worker;
 	    delete [] ack;
     }
-
+    
+    /*
 	::usleep(2);
 
     if (PongTimes || PongGames)
@@ -427,6 +431,9 @@ int	main(int argc, char* argv[])
     if (verbose) {
     	sthread_t::dump_stats(cout);
 	}
+    */
+
+    delete sp2;
 
     return 0;
 }
@@ -436,9 +443,9 @@ int	main(int argc, char* argv[])
 worker_thread_t::worker_thread_t(int _id)
     : work_id(_id)
 {
-    w_ostrstream_buf s(40);		// XXX magic number
-    s << "worker[" << _id << "]" << ends;
-    rename(s.c_str());
+    w_ostrstream_buf st(40);		// XXX magic number
+    st << "worker[" << _id << "]" << ends;
+    rename(st.c_str());
 }
 
 void worker_thread_t::run()

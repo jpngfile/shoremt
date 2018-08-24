@@ -704,7 +704,7 @@ private:
                             const void *           id = 0);
 
     static w_rc_t::errcode_t        _block(
-                            pthread_mutex_t        *lock, 
+                            fibre_mutex_t        *lock, 
                             timeout_in_ms          timeout = WAIT_FOREVER,
                             sthread_list_t*        list = 0,
                             const char* const      caller = 0,
@@ -717,7 +717,7 @@ public:
                                              struct timespec &when);
     w_rc_t               unblock(w_rc_t::errcode_t e);
     static w_rc_t        block(
-                            pthread_mutex_t        &lock,
+                            fibre_mutex_t        &lock,
                             timeout_in_ms          timeout = WAIT_FOREVER,
                             sthread_list_t*        list = 0,
                             const char* const      caller = 0,
@@ -905,12 +905,16 @@ private:
     void *                      _danger;
     size_t                      _stack_size;
 
-    pthread_mutex_t             _wait_lock; // paired with _wait_cond, also
+    fibre_mutex_t               _wait_lock;
+    //pthread_mutex_t             _wait_lock; // paired with _wait_cond, also
                                 // protects _link
-    pthread_cond_t              _wait_cond; // posted when thread should unblock
+    fibre_cond_t                _wait_cond;
+    //pthread_cond_t              _wait_cond; // posted when thread should unblock
 
-    pthread_mutex_t*            _start_terminate_lock; // _start_cond, _terminate_cond, _forked
-    pthread_cond_t *            _start_cond; // paired w/ _start_terminate_lock
+    fibre_mutex_t*              _start_terminate_lock;
+    fibre_cond_t*               _start_cond;
+    //pthread_mutex_t*            _start_terminate_lock; // _start_cond, _terminate_cond, _forked
+    //pthread_cond_t *            _start_cond; // paired w/ _start_terminate_lock
 
     volatile bool               _sleeping;
     volatile bool               _forked;

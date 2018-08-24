@@ -4,3 +4,4 @@ export LDFLAGS="-L/home/jason/Github/shoremt/libfibre"
 export LIBS="-lfibre -lpthread -lrt -Wl,-rpath=."
 export CPATH="/home/jason/Github/KOS/src/"
 # Also added libfibre.so to every folder that uses it
+# Later installed libfibre to /usr/lib

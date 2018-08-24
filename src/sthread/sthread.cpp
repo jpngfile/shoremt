@@ -510,7 +510,7 @@ w_rc_t    sthread_t::fork()
             _status = t_running;
         } else    {
             // happens after main() called
-            DO_PTHREAD( pthread_cond_signal(_start_cond) );
+            DO_PTHREAD( fibre_cond_signal(_start_cond) );
         }
     }
 #if TRACE_START_TERM
@@ -554,8 +554,8 @@ sthread_t::sthread_t(priority_t        pr,
 : sthread_named_base_t(nm),
   user(0),
   id(_next_id++), // make it match the gdb threads #. Origin 1
-  _start_terminate_lock(new pthread_mutex_t),
-  _start_cond(new pthread_cond_t),
+  _start_terminate_lock(new fibre_mutex_t),
+  _start_cond(new fibre_cond_t),
   _sleeping(false), 
   _forked(false), 
   _terminated(false),
@@ -568,8 +568,8 @@ sthread_t::sthread_t(priority_t        pr,
     if(!_start_terminate_lock || !_start_cond )
         W_FATAL(fcOUTOFMEMORY);
 
-    DO_PTHREAD(pthread_cond_init(_start_cond, NULL));
-    DO_PTHREAD(pthread_mutex_init(_start_terminate_lock, NULL));
+    DO_PTHREAD(fibre_cond_init(_start_cond, NULL));
+    DO_PTHREAD(fibre_mutex_init(_start_terminate_lock, NULL));
    
     _core = new sthread_core_t;
     if (!_core)
@@ -588,8 +588,8 @@ sthread_t::sthread_t(priority_t        pr,
     /*
      *  Initialize the core.
      */
-    DO_PTHREAD(pthread_mutex_init(&_wait_lock, NULL));
-    DO_PTHREAD(pthread_cond_init(&_wait_cond, NULL));
+    DO_PTHREAD(fibre_mutex_init(&_wait_lock, NULL));
+    DO_PTHREAD(fibre_cond_init(&_wait_cond, NULL));
     
     /*
      * stash the procedure (sthread_t::_start)
@@ -681,11 +681,11 @@ sthread_t::~sthread_t()
     delete _core;
     _core = 0;
 
-    DO_PTHREAD(pthread_cond_destroy(_start_cond));
+    DO_PTHREAD(fibre_cond_destroy(_start_cond));
 	delete _start_cond;
     _start_cond = 0;
 
-    DO_PTHREAD(pthread_mutex_destroy(_start_terminate_lock));
+    DO_PTHREAD(fibre_mutex_destroy(_start_terminate_lock));
 	delete _start_terminate_lock;
     _start_terminate_lock = 0; // clean up for valgrind
 
@@ -797,7 +797,7 @@ void sthread_t::_start()
     {
         CRITICAL_SECTION(cs, _start_terminate_lock);
         while(!_forked) {
-            DO_PTHREAD(pthread_cond_wait(_start_cond, _start_terminate_lock));
+            DO_PTHREAD(fibre_cond_wait(_start_cond, _start_terminate_lock));
 	}
 	CRITICAL_SECTION(cs_thread, _wait_lock);
 	_status = t_running;
@@ -876,7 +876,7 @@ void sthread_t::_start()
  *********************************************************************/
 w_rc_t
 sthread_t::block(
-    pthread_mutex_t     &lock,
+    fibre_mutex_t     &lock,
     timeout_in_ms       timeout,
     sthread_list_t*     list,        // list for thread after blocking
     const char* const   caller,        // for debugging only
@@ -895,7 +895,7 @@ sthread_t::block(int4_t timeout /*= WAIT_FOREVER*/)
 
 w_rc_t::errcode_t
 sthread_t::_block(
-    pthread_mutex_t     *lock,
+    fibre_mutex_t     *lock,
     timeout_in_ms       timeout,
     sthread_list_t*     list,        // list for thread after blocking
     const char* const   caller,        // for debugging only
@@ -916,7 +916,7 @@ sthread_t::_block(
 
         if(lock) {
             // the caller expects us to unlock this
-            DO_PTHREAD(pthread_mutex_unlock(lock));
+            DO_PTHREAD(fibre_mutex_unlock(lock));
         }
         rce = _block(timeout, caller, id);
     }
@@ -985,7 +985,7 @@ sthread_t::_block(
         // timeout has passed, so we should drop out if timed out,
         // and it should return 0 if we were signalled.
         while(!error && !self->_unblock_flag)  {
-            error = pthread_cond_timedwait(&self->_wait_cond, 
+            error = fibre_cond_timedwait(&self->_wait_cond, 
                     &self->_wait_lock, &when);
             w_assert1(error == ETIMEDOUT || error == 0);
             // Break out if we were signalled
@@ -1000,7 +1000,7 @@ sthread_t::_block(
         // if we were signalled
         while(!error && !self->_unblock_flag)
                                      // condition          // mutex
-            error = pthread_cond_wait(&self->_wait_cond, &self->_wait_lock);
+            error = fibre_cond_wait(&self->_wait_cond, &self->_wait_lock);
     }
     // why did we wake up?
     switch(error) {
@@ -1074,7 +1074,7 @@ sthread_t::_unblock(w_rc_t::errcode_t e)
      */
     _unblock_flag = true;
     membar_producer(); // make sure the unblock_flag is visible
-    DO_PTHREAD(pthread_cond_signal(&_wait_cond));
+    DO_PTHREAD(fibre_cond_signal(&_wait_cond));
     _status = t_running;
 
     return RCOK;

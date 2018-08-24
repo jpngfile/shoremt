@@ -20,7 +20,7 @@ check_PROGRAMS     = thread1$(EXEEXT) thread2$(EXEEXT)\
 
 TESTS = testall
 
-LDADD = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+LDADD = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) ../../../libfibre.a
 
 pthread_test_SOURCES  = pthread_test.cpp
 
