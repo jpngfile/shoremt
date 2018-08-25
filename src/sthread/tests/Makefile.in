@@ -165,36 +165,43 @@ CONFIG_CLEAN_VPATH_FILES =
 am_except_OBJECTS = except.$(OBJEXT)
 except_OBJECTS = $(am_except_OBJECTS)
 except_LDADD = $(LDADD)
-except_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+except_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) \
+	../../../libfibre.a
 am_ioperf_OBJECTS = ioperf.$(OBJEXT)
 ioperf_OBJECTS = $(am_ioperf_OBJECTS)
 ioperf_LDADD = $(LDADD)
-ioperf_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+ioperf_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) \
+	../../../libfibre.a
 am_mmap_OBJECTS = mmap.$(OBJEXT)
 mmap_OBJECTS = $(am_mmap_OBJECTS)
 mmap_LDADD = $(LDADD)
-mmap_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+mmap_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) \
+	../../../libfibre.a
 am_pthread_test_OBJECTS = pthread_test.$(OBJEXT)
 pthread_test_OBJECTS = $(am_pthread_test_OBJECTS)
 pthread_test_LDADD = $(LDADD)
 pthread_test_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a \
-	$(LOCALLDADD)
+	$(LOCALLDADD) ../../../libfibre.a
 am_thread1_OBJECTS = thread1.$(OBJEXT)
 thread1_OBJECTS = $(am_thread1_OBJECTS)
 thread1_LDADD = $(LDADD)
-thread1_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+thread1_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) \
+	../../../libfibre.a
 am_thread2_OBJECTS = thread2.$(OBJEXT)
 thread2_OBJECTS = $(am_thread2_OBJECTS)
 thread2_LDADD = $(LDADD)
-thread2_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+thread2_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) \
+	../../../libfibre.a
 am_thread3_OBJECTS = thread3.$(OBJEXT)
 thread3_OBJECTS = $(am_thread3_OBJECTS)
 thread3_LDADD = $(LDADD)
-thread3_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+thread3_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) \
+	../../../libfibre.a
 am_thread4_OBJECTS = thread4.$(OBJEXT)
 thread4_OBJECTS = $(am_thread4_OBJECTS)
 thread4_LDADD = $(LDADD)
-thread4_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+thread4_DEPENDENCIES = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) \
+	../../../libfibre.a
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -788,7 +795,7 @@ check_PROGRAMS = thread1$(EXEEXT) thread2$(EXEEXT)\
 		     except$(EXEEXT) pthread_test$(EXEEXT)
 
 TESTS = testall
-LDADD = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD)
+LDADD = ../libsthread.a ../../fc/libfc.a $(LOCALLDADD) ../../../libfibre.a
 pthread_test_SOURCES = pthread_test.cpp
 thread1_SOURCES = thread1.cpp
 thread2_SOURCES = thread2.cpp

@@ -320,6 +320,12 @@ void doErrorTests()
 	}
 }
 
+void printMsg()
+{
+    OUT << "THREAD PRINT MSG" << endl; FLUSHOUT;
+    return;
+}
+
 int	main(int argc, char* argv[])
 {
     int i;
@@ -327,55 +333,69 @@ int	main(int argc, char* argv[])
     int next_arg = parse_args(argc, argv);
     if (next_arg < 0)
 	    return 1;
+    Time ct;
+    SYSCALL(clock_gettime(CLOCK_REALTIME, &ct));
+    OUT << ct.tv_sec << '.' << ct.tv_nsec << endl; FLUSHOUT
+    SYSCALL(clock_gettime(CLOCK_REALTIME, &ct));
+    OUT << ct.tv_sec << '.' << ct.tv_nsec << endl; FLUSHOUT;
     
     OUT << "System Processor" << endl; FLUSHOUT;
     SystemProcessor* sp2 = new SystemProcessor;
+    OUT << "Single fibre" << endl; FLUSHOUT;
 
-    if (NumThreads) {
-	    ack = new int[NumThreads];
-	    if (!ack)
-		    W_FATAL(fcOUTOFMEMORY);
+    Fibre* f1 = (new Fibre)->run(printMsg);
+    Fibre::yield();
+    f1->join();
+    delete f1;
+    OUT << "f1 gone" << endl; FLUSHOUT;
 
-	    worker = new worker_thread_t *[NumThreads];
-	    if (!worker)
-		    W_FATAL(fcOUTOFMEMORY);
-    
-	    /* print some stuff */
-	    for(i=0; i<NumThreads; ++i) {
-			OUT << "creating i= " << i << endl; FLUSHOUT;
-		    ack[i] = 0;
-		    worker[i] = new worker_thread_t(i);
-		    w_assert1(worker[i]);
-		    W_COERCE(worker[i]->fork());
-			OUT << "forked i= " << i << endl; FLUSHOUT;
-	    }
-
-	    if (DumpThreads) {
-			OUT << "";
-		    sthread_t::dumpall("dump", _out);
-			FLUSHOUT;
-		}
-
-		::usleep(2);
-    
-	    for(i=0; i<NumThreads; ++i) {
-			OUT << "joining i= " << i << endl; FLUSHOUT;
-
-		    W_COERCE( worker[i]->join() );
-		    w_assert0(ack[i]);
-		    if (DumpThreads) {
-			    OUT << "Thread Done:"
-				    <<  endl << *worker[i] << endl;
-				FLUSHOUT;
-			}
-			OUT << "deleting thread i= " << i << endl; FLUSHOUT;
-		    delete worker[i];
-		    worker[i] = 0;
-	    }
-
-	    delete [] worker;
-	    delete [] ack;
-    }
+//    
+//    if (NumThreads) {
+//	    ack = new int[NumThreads];
+//	    if (!ack)
+//		    W_FATAL(fcOUTOFMEMORY);
+//
+//	    worker = new worker_thread_t *[NumThreads];
+//	    if (!worker)
+//		    W_FATAL(fcOUTOFMEMORY);
+//    
+//	    /* print some stuff */
+//	    for(i=0; i<NumThreads; ++i) {
+//			OUT << "creating i= " << i << endl; FLUSHOUT;
+//		    ack[i] = 0;
+//		    worker[i] = new worker_thread_t(i);
+//		    w_assert1(worker[i]);
+//		    W_COERCE(worker[i]->fork());
+//			OUT << "forked i= " << i << endl; FLUSHOUT;
+//	    }
+//
+//	    if (DumpThreads) {
+//			OUT << "";
+//		    sthread_t::dumpall("dump", _out);
+//			FLUSHOUT;
+//		}
+//
+//		::usleep(2);
+//    
+//	    for(i=0; i<NumThreads; ++i) {
+//			OUT << "joining i= " << i << endl; FLUSHOUT;
+//
+//		    W_COERCE( worker[i]->join() );
+//		    w_assert0(ack[i]);
+//		    if (DumpThreads) {
+//			    OUT << "Thread Done:"
+//				    <<  endl << *worker[i] << endl;
+//				FLUSHOUT;
+//			}
+//			OUT << "deleting thread i= " << i << endl; FLUSHOUT;
+//		    delete worker[i];
+//		    worker[i] = 0;
+//	    }
+//
+//	    delete [] worker;
+//	    delete [] ack;
+//    }
+//
     
     /*
 	::usleep(2);
@@ -433,7 +453,7 @@ int	main(int argc, char* argv[])
 	}
     */
 
-    delete sp2;
+    //delete sp2;
 
     return 0;
 }

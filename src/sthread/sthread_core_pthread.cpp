@@ -85,40 +85,40 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 /* Mimic the posix semaphores so it just works.  They release
    waiters when the count is > 0, sleep if <= 0 */
 
-static    int    sem_init(sthread_core_t::sem_t *sem, int, int count)
+static    int    sem_init(sthread_core_t::fibre_sem_t *sem, int, int count)
 {
     /* XXX could bitch if shared was true, but it is just for
        local compatability */
 
     sem->count = count;
-    DO_PTHREAD(pthread_mutex_init(&sem->lock, NULL));
-    DO_PTHREAD(pthread_cond_init(&sem->wake, NULL));
+    DO_PTHREAD(fibre_mutex_init(&sem->lock, NULL));
+    DO_PTHREAD(fibre_cond_init(&sem->wake, NULL));
 
     return 0;
 }
 
-static    void    sem_destroy(sthread_core_t::sem_t *sem)
+static    void    sem_destroy(sthread_core_t::fibre_sem_t *sem)
 {
-    DO_PTHREAD(pthread_mutex_destroy(&sem->lock));
-    DO_PTHREAD(pthread_cond_destroy(&sem->wake));
+    DO_PTHREAD(fibre_mutex_destroy(&sem->lock));
+    DO_PTHREAD(fibre_cond_destroy(&sem->wake));
 }
 
-static    inline    void    sem_post(sthread_core_t::sem_t *sem)
+static    inline    void    sem_post(sthread_core_t::fibre_sem_t *sem)
 {
-    DO_PTHREAD(pthread_mutex_lock(&sem->lock));
+    DO_PTHREAD(fibre_mutex_lock(&sem->lock));
     sem->count++;
     if (sem->count > 0)
-        DO_PTHREAD(pthread_cond_signal(&sem->wake));
-    DO_PTHREAD(pthread_mutex_unlock(&sem->lock));
+        DO_PTHREAD(fibre_cond_signal(&sem->wake));
+    DO_PTHREAD(fibre_mutex_unlock(&sem->lock));
 }
 
-static    inline    void    sem_wait(sthread_core_t::sem_t *sem)
+static    inline    void    sem_wait(sthread_core_t::fibre_sem_t *sem)
 {
-    DO_PTHREAD(pthread_mutex_lock(&sem->lock));
+    DO_PTHREAD(fibre_mutex_lock(&sem->lock));
     while (sem->count <= 0)
-        DO_PTHREAD(pthread_cond_wait(&sem->wake, &sem->lock));
+        DO_PTHREAD(fibre_cond_wait(&sem->wake, &sem->lock));
     sem->count--;
-    DO_PTHREAD(pthread_mutex_unlock(&sem->lock));
+    DO_PTHREAD(fibre_mutex_unlock(&sem->lock));
 }
 #endif
 
@@ -155,7 +155,8 @@ int sthread_core_init(sthread_core_t *core,
 
     if (stack_size > 0) {
         /* A real thread :thread id, default attributes, start func, arg */
-        n = pthread_create(&core->pthread, NULL, pthread_core_start, core);
+        n = fibre_create(&core->fibre, NULL, pthread_core_start, core);
+        //n = pthread_create(&core->pthread, NULL, pthread_core_start, core);
         if (n == -1) {
             w_rc_t e= RC(fcOS);
             // EAGAIN: insufficient resources
@@ -163,7 +164,7 @@ int sthread_core_init(sthread_core_t *core,
             // say it's hit the maximum # threads because that depends
             // on a variety of resources, and in any case, we don't
             // know how much memory will be required for another thread.
-            cerr << "pthread_create():" << endl << e << endl;
+            cerr << "fibre_create():" << endl << e << endl;
             return -1;
         }
         core->creator = pthread_self();
@@ -181,8 +182,8 @@ int sthread_core_init(sthread_core_t *core,
 
         /* The system stack is never virgin */
         core->is_virgin = 0;
-        core->pthread = pthread_self();
-        core->creator = core->pthread; // main thread
+        core->fibre = fibre_self();
+        //core->creator = core->pthread; // main thread
     }
     return 0;
 }
@@ -200,7 +201,7 @@ void sthread_core_exit(sthread_core_t* core, bool &joined)
     /* must wait for the thread and then harvest its thread */
 
     if (core->stack_size > 0) {
-        int res = pthread_join(core->pthread, &join_value);
+        int res = fibre_join(core->fibre, &join_value);
         if(res) {
             const char *msg="";
             switch(res) {
@@ -237,12 +238,12 @@ ostream &operator<<(ostream &o, const sthread_core_t &core)
     o << "core: ";
     if (core.stack_size == 0)
         W_FORM(o)("[ system thread %#lx creator %#lx ]", 
-                (long) core.pthread, 
+                (long) core.fibre, 
                 (long) core.creator
                 );
     else
         W_FORM(o)("[ thread %#lx creator %#lx ] size=%d",  
-            (long) core.pthread, 
+            (long) core.fibre, 
             (long) core.creator, 
             core.stack_size);
     if (core.is_virgin)
