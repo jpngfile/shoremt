@@ -36,6 +36,7 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 #include <cassert>
 #include <ctime>
 
+#include "fibre.h"
 #include <w.h>
 #include <sthread.h>
 #include <sthread_stats.h>
@@ -340,64 +341,61 @@ int	main(int argc, char* argv[])
     OUT << ct.tv_sec << '.' << ct.tv_nsec << endl; FLUSHOUT;
     
     OUT << "System Processor" << endl; FLUSHOUT;
-    SystemProcessor* sp2 = new SystemProcessor;
+    //SystemProcessor* sp2 = new SystemProcessor;
     OUT << "Single fibre" << endl; FLUSHOUT;
-
     Fibre* f1 = (new Fibre)->run(printMsg);
     Fibre::yield();
     f1->join();
     delete f1;
     OUT << "f1 gone" << endl; FLUSHOUT;
 
-//    
-//    if (NumThreads) {
-//	    ack = new int[NumThreads];
-//	    if (!ack)
-//		    W_FATAL(fcOUTOFMEMORY);
-//
-//	    worker = new worker_thread_t *[NumThreads];
-//	    if (!worker)
-//		    W_FATAL(fcOUTOFMEMORY);
-//    
-//	    /* print some stuff */
-//	    for(i=0; i<NumThreads; ++i) {
-//			OUT << "creating i= " << i << endl; FLUSHOUT;
-//		    ack[i] = 0;
-//		    worker[i] = new worker_thread_t(i);
-//		    w_assert1(worker[i]);
-//		    W_COERCE(worker[i]->fork());
-//			OUT << "forked i= " << i << endl; FLUSHOUT;
-//	    }
-//
-//	    if (DumpThreads) {
-//			OUT << "";
-//		    sthread_t::dumpall("dump", _out);
-//			FLUSHOUT;
-//		}
-//
-//		::usleep(2);
-//    
-//	    for(i=0; i<NumThreads; ++i) {
-//			OUT << "joining i= " << i << endl; FLUSHOUT;
-//
-//		    W_COERCE( worker[i]->join() );
-//		    w_assert0(ack[i]);
-//		    if (DumpThreads) {
-//			    OUT << "Thread Done:"
-//				    <<  endl << *worker[i] << endl;
-//				FLUSHOUT;
-//			}
-//			OUT << "deleting thread i= " << i << endl; FLUSHOUT;
-//		    delete worker[i];
-//		    worker[i] = 0;
-//	    }
-//
-//	    delete [] worker;
-//	    delete [] ack;
-//    }
-//
     
-    /*
+    if (NumThreads) {
+	    ack = new int[NumThreads];
+	    if (!ack)
+		    W_FATAL(fcOUTOFMEMORY);
+
+	    worker = new worker_thread_t *[NumThreads];
+	    if (!worker)
+		    W_FATAL(fcOUTOFMEMORY);
+    
+	    /* print some stuff */
+	    for(i=0; i<NumThreads; ++i) {
+			OUT << "creating i= " << i << endl; FLUSHOUT;
+		    ack[i] = 0;
+		    worker[i] = new worker_thread_t(i);
+		    w_assert1(worker[i]);
+		    W_COERCE(worker[i]->fork());
+			OUT << "forked i= " << i << endl; FLUSHOUT;
+	    }
+
+	    if (DumpThreads) {
+			OUT << "";
+		    sthread_t::dumpall("dump", _out);
+			FLUSHOUT;
+		}
+
+		::usleep(2);
+    
+	    for(i=0; i<NumThreads; ++i) {
+			OUT << "joining i= " << i << endl; FLUSHOUT;
+            Fibre::yield();
+		    W_COERCE( worker[i]->join() );
+		    w_assert0(ack[i]);
+		    if (DumpThreads) {
+			    OUT << "Thread Done:"
+				    <<  endl << *worker[i] << endl;
+				FLUSHOUT;
+			}
+			OUT << "deleting thread i= " << i << endl; FLUSHOUT;
+		    delete worker[i];
+		    worker[i] = 0;
+	    }
+
+	    delete [] worker;
+	    delete [] ack;
+    }
+
 	::usleep(2);
 
     if (PongTimes || PongGames)
@@ -451,9 +449,6 @@ int	main(int argc, char* argv[])
     if (verbose) {
     	sthread_t::dump_stats(cout);
 	}
-    */
-
-    //delete sp2;
 
     return 0;
 }

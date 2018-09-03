@@ -193,7 +193,7 @@ int sthread_core_init(sthread_core_t *core,
  */
 void sthread_core_exit(sthread_core_t* core, bool &joined)
 {
-    void    *join_value=NULL;
+    void    **join_value=nullptr;
     if(joined) {
         return;
     }
@@ -201,7 +201,7 @@ void sthread_core_exit(sthread_core_t* core, bool &joined)
     /* must wait for the thread and then harvest its thread */
 
     if (core->stack_size > 0) {
-        int res = fibre_join(core->fibre, &join_value);
+        int res = fibre_join(core->fibre, join_value);
         if(res) {
             const char *msg="";
             switch(res) {
