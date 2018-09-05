@@ -99,8 +99,8 @@ Rome Research Laboratory Contract No. F30602-97-2-0247.
 #include <pthread.h>
 #include "fibre.h"
 
-#include "runtime/BlockingSync.h"
-#include "libfibre/lfbasics.h"
+//#include "runtime/BlockingSync.h"
+//#include "libfibre/lfbasics.h"
 
 class sthread_t;
 class smthread_t;
@@ -618,13 +618,11 @@ private:
     occ_rlock _read_lock;
     occ_wlock _write_lock;
 
-    // Replaced with fibres
     fibre_mutex_t _read_write_mutex; // paired w/ _read_cond, _write_cond
     fibre_cond_t _read_cond; // paired w/ _read_write_mutex
     fibre_cond_t _write_cond; // paired w/ _read_write_mutex
 };
 
-// Replaced with fibres
 #ifdef LOCKHACK
 typedef w_list_t<sthread_t, fibre_mutex_t> sthread_list_t;
 typedef w_list_i<sthread_t, fibre_mutex_t> sthread_list_i;
@@ -838,15 +836,13 @@ public:
     /*
      *  Misc
      */
-    // Replace with fibre
     // NOTE: this returns a REFERENCE
     static sthread_t*    &me_lval() ;
     // NOTE: this returns a POINTER
     static sthread_t*    me() { return me_lval(); }
                          // for debugging:
                          ///
-    // Replace with fibre
-    fibre_t            myself(); // pthread_t associated with this
+    fibre_t            myself(); // fibre_t associated with this
     static w_rand        *tls_rng() { return &me()->_rng; }
     w_rand               *rng() { return &_rng; }
 
@@ -905,16 +901,13 @@ private:
     void *                      _danger;
     size_t                      _stack_size;
 
-    fibre_mutex_t               _wait_lock;
-    //pthread_mutex_t             _wait_lock; // paired with _wait_cond, also
-                                // protects _link
-    fibre_cond_t                _wait_cond;
-    //pthread_cond_t              _wait_cond; // posted when thread should unblock
+    fibre_mutex_t               _wait_lock; // paired with _wait_cond, also
 
-    fibre_mutex_t*              _start_terminate_lock;
-    fibre_cond_t*               _start_cond;
-    //pthread_mutex_t*            _start_terminate_lock; // _start_cond, _terminate_cond, _forked
-    //pthread_cond_t *            _start_cond; // paired w/ _start_terminate_lock
+    fibre_cond_t                _wait_cond; // posted when thread should unblock
+
+    fibre_mutex_t*              _start_terminate_lock; // _start_cond, _terminate_cond, _forked
+    fibre_cond_t*               _start_cond; // _start_cond, _terminate_cond, _forked
+
 
     volatile bool               _sleeping;
     volatile bool               _forked;
@@ -938,7 +931,6 @@ private:
     // protected by _class_list_lock
     static sthread_list_t* _class_list;
 
-// replaced with fibre
 #ifdef LOCKHACK
     static fibre_mutex_t _class_list_lock; // for protecting _class_list
 #else

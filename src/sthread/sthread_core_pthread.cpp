@@ -156,7 +156,6 @@ int sthread_core_init(sthread_core_t *core,
     if (stack_size > 0) {
         /* A real thread :thread id, default attributes, start func, arg */
         n = fibre_create(&core->fibre, NULL, pthread_core_start, core);
-        //n = pthread_create(&core->pthread, NULL, pthread_core_start, core);
         if (n == -1) {
             w_rc_t e= RC(fcOS);
             // EAGAIN: insufficient resources

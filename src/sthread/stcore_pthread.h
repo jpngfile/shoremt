@@ -60,8 +60,7 @@ typedef struct sthread_core_t {
     void        *start_arg;        /* argument for start_proc */
     int         stack_size;        /* stack size */
     void        *sthread;        /* sthread which uses this core */
-    fibre_t       fibre;          /* Fibre to replace pthread */
-    //pthread_t   pthread;
+    fibre_t       fibre;
     pthread_t   creator;         /* thread that created this pthread, for
                                     debugging only */
 } sthread_core_t;

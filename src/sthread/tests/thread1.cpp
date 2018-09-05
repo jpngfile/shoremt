@@ -74,8 +74,6 @@ class pong_thread_t;
 struct ping_pong_t {
 	int		    whoseShot;
     
-	//pthread_mutex_t	theBall;
-	//pthread_cond_t paddle[2];
     fibre_mutex_t theBall;
     fibre_cond_t paddle[2];
 
@@ -83,9 +81,6 @@ struct ping_pong_t {
 	pong_thread_t	*pong;
 	
 	ping_pong_t() : whoseShot(0), ping(0), pong(0) { 
-		//DO_PTHREAD(pthread_mutex_init(&theBall, NULL));
-		//DO_PTHREAD(pthread_cond_init(&paddle[0], NULL));
-		//DO_PTHREAD(pthread_cond_init(&paddle[1], NULL));
 		DO_PTHREAD(fibre_mutex_init(&theBall, NULL));
 		DO_PTHREAD(fibre_cond_init(&paddle[0], NULL));
 		DO_PTHREAD(fibre_cond_init(&paddle[1], NULL));
@@ -94,8 +89,6 @@ struct ping_pong_t {
 
 
 class wait_for_t {
-	//pthread_mutex_t	_lock;
-	//pthread_cond_t	_done;
 	fibre_mutex_t	_lock;
 	fibre_cond_t	_done;
 
@@ -104,8 +97,6 @@ class wait_for_t {
 
 public:
 	wait_for_t(int expecting) : expected(expecting), have(0) { 
-		//DO_PTHREAD(pthread_mutex_init(&_lock, NULL));
-		//DO_PTHREAD(pthread_cond_init(&_done, NULL));
 		DO_PTHREAD(fibre_mutex_init(&_lock, NULL));
 		DO_PTHREAD(fibre_cond_init(&_done, NULL));
 	}
@@ -321,12 +312,6 @@ void doErrorTests()
 	}
 }
 
-void printMsg()
-{
-    OUT << "THREAD PRINT MSG" << endl; FLUSHOUT;
-    return;
-}
-
 int	main(int argc, char* argv[])
 {
     int i;
@@ -334,21 +319,6 @@ int	main(int argc, char* argv[])
     int next_arg = parse_args(argc, argv);
     if (next_arg < 0)
 	    return 1;
-    Time ct;
-    SYSCALL(clock_gettime(CLOCK_REALTIME, &ct));
-    OUT << ct.tv_sec << '.' << ct.tv_nsec << endl; FLUSHOUT
-    SYSCALL(clock_gettime(CLOCK_REALTIME, &ct));
-    OUT << ct.tv_sec << '.' << ct.tv_nsec << endl; FLUSHOUT;
-    
-    OUT << "System Processor" << endl; FLUSHOUT;
-    //SystemProcessor* sp2 = new SystemProcessor;
-    OUT << "Single fibre" << endl; FLUSHOUT;
-    Fibre* f1 = (new Fibre)->run(printMsg);
-    Fibre::yield();
-    f1->join();
-    delete f1;
-    OUT << "f1 gone" << endl; FLUSHOUT;
-
     
     if (NumThreads) {
 	    ack = new int[NumThreads];
@@ -500,11 +470,9 @@ void pong_thread_t::run()
 		CRITICAL_SECTION(cs, game.theBall);
 		for(i=0; i<PongTimes; ++i){
 			while(game.whoseShot != self){
-				//DO_PTHREAD(pthread_cond_wait(&game.paddle[self], &game.theBall));
 				DO_PTHREAD(fibre_cond_wait(&game.paddle[self], &game.theBall));
 			}
 			game.whoseShot = 1-self;
-			//DO_PTHREAD(pthread_cond_signal(&game.paddle[1-self]));
 			DO_PTHREAD(fibre_cond_signal(&game.paddle[1-self]));
 
 		}
@@ -615,7 +583,6 @@ void	wait_for_t::wait()
 {
 	CRITICAL_SECTION(cs, _lock);
 	while (have < expected) {
-		//DO_PTHREAD(pthread_cond_wait(&_done, &_lock));
 		DO_PTHREAD(fibre_cond_wait(&_done, &_lock));
 	}
 }
@@ -625,7 +592,6 @@ void	wait_for_t::done()
 	CRITICAL_SECTION(cs, _lock);
 	have++;
 	if (have >= expected) {
-		//DO_PTHREAD(pthread_cond_signal(&_done));
 		DO_PTHREAD(fibre_cond_signal(&_done));
 	}
 }
